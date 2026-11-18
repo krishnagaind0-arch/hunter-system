@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090b14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hunter System">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Hunter System</title>
+<style>
+:root{color-scheme:dark;--bg:#080a12;--panel:#111522;--line:#252c40;--muted:#9ba5bc;--cyan:#65d9ff;--purple:#a78bfa;--green:#48df9a;--gold:#f5c76b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#20264a 0%,var(--bg) 55%);color:#f4f6ff;font:15px system-ui,-apple-system,sans-serif;padding:env(safe-area-inset-top) 14px calc(22px + env(safe-area-inset-bottom))}
+main{max-width:720px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;padding:18px 2px 12px}.eyebrow{font-size:11px;letter-spacing:2px;color:var(--cyan);font-weight:800}.rank{border:1px solid #4b3e72;background:#241c3b;color:#d9c8ff;border-radius:30px;padding:7px 12px;font-size:12px;font-weight:800}
+h1{font-size:29px;margin:3px 0 0;letter-spacing:1px}.sub{color:var(--muted);font-size:13px}.card{background:linear-gradient(145deg,#151b2b,#0e1220);border:1px solid var(--line);border-radius:19px;padding:17px;margin:13px 0;box-shadow:0 10px 30px #0004}.hero{border-color:#344267;background:linear-gradient(140deg,#1b2440,#111522 70%)}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.big{font-size:38px;font-weight:850;line-height:1.1}.xp{color:var(--cyan);font-weight:800}.bar{height:9px;background:#293149;border-radius:20px;overflow:hidden;margin:10px 0}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:20px;width:0%}
+h2{font-size:17px;margin:0 0 12px}.muted{color:var(--muted)}.quest{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #242b3d}.quest:last-child{border:0}.quest input{width:20px;height:20px;accent-color:#7c6cff;flex:none}.qname{flex:1}.qname.done{text-decoration:line-through;color:#8490a8}.points{color:var(--green);font-size:13px;font-weight:800;white-space:nowrap}.btn{border:0;border-radius:12px;padding:12px 15px;background:linear-gradient(90deg,#7664ef,#398bdc);color:white;font-weight:800;font-size:14px;width:100%;margin-top:10px}.btn:disabled{opacity:.45}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{background:#0b1020;border:1px solid #252e45;border-radius:12px;padding:11px}.stat b{display:block;font-size:20px}.stat small{color:var(--muted)}.bossitem{padding:8px 0}.bossitem label{display:flex;gap:9px;align-items:flex-start}.bossitem input{accent-color:#7c6cff;width:18px;height:18px}.reward{color:var(--gold);font-weight:800}.foot{text-align:center;color:#74809a;font-size:11px;padding:14px}
+</style>
+</head>
+<body><main>
+<header class="top"><div><div class="eyebrow">SYSTEM ONLINE</div><h1>HUNTER SYSTEM</h1><div class="sub">Your real life. Your level-up journey.</div></div><div class="rank" id="rank">E-RANK</div></header>
+<section class="card hero">
+ <div class="row"><div><div class="eyebrow">CURRENT LEVEL</div><div class="big" id="level">01</div></div><div style="text-align:right"><div class="muted">TOTAL XP</div><div class="big xp" id="totalxp">0</div></div></div>
+ <div class="bar"><span id="levelbar"></span></div><div class="row sub"><span id="progress">0 / 500 XP to next level</span><span id="nextRank">Next: D-Rank</span></div>
+</section>
+<section class="card"><div class="row"><h2>Hunter attributes</h2><span class="muted" style="font-size:11px">STARTING STATS</span></div><div class="stats" id="stats"></div></section>
+<section class="card"><div class="row"><h2>Daily quests</h2><span class="muted" id="date"></span></div><div id="quests"></div><div class="row" style="margin-top:12px"><b>Today's XP</b><span class="xp" id="todayxp">0 XP</span></div><button class="btn" id="claim">CLAIM TODAY'S XP</button><div class="sub" id="claimnote" style="margin-top:8px">Check off completed missions, then claim your XP.</div></section>
+<section class="card"><div class="row"><h2>Weekly boss</h2><span class="rank">SUNDAY RESET</span></div><div class="eyebrow" style="color:#ff8d9c">THE SHADOW BEAST</div><p class="sub">Complete all five objectives to defeat this week's boss.</p><div id="boss"></div><div class="row" style="margin-top:10px"><b>Boss reward</b><span class="reward">+300 XP</span></div><button class="btn" id="bossclaim">CLAIM BOSS REWARD</button><div class="sub" id="bossnote" style="margin-top:8px"></div></section>
+<section class="card"><h2>Rank progression</h2><div id="ranks" class="sub"></div></section>
+<div class="foot">Progress saves on this device. Training should challenge you, never harm you. Rest and recovery count.</div>
+</main>
+<script>
+const quests=[
+["Complete planned workout or recovery day",50],
+["Reach 8,000 steps",20],
+["Follow your vegetarian nutrition plan",30],
+["Drink enough water",10],
+["Study or learn a skill for 45 minutes",25],
+["Read for 15 minutes",15],
+["Avoid unnecessary scrolling for one hour",20],
+["Sleep 7–9 hours",30]
+];
+const bossTasks=["Complete 4–5 planned training sessions","Follow nutrition plan on 5 days","Average 8,000 steps per day","Complete 5 hours of study or skill learning","Review progress and plan next week"];
+const thresholds=[["E-RANK",0],["D-RANK",2000],["C-RANK",5000],["B-RANK",9000],["A-RANK",14000],["S-RANK",20000]];
+const key="hunter-system-v1";
+let data={total:0,claimed:{},bossClaimed:{},boss:{},attrs:{Strength:10,Stamina:10,Discipline:10,Intelligence:10,Agility:10,Recovery:10}};
+try{data={...data,...JSON.parse(localStorage.getItem(key)||"{}")}}catch(e){}
+function save(){localStorage.setItem(key,JSON.stringify(data))}
+function dayKey(){let d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function weekKey(){let d=new Date();let x=new Date(d);x.setDate(d.getDate()-((d.getDay()+6)%7));return x.getFullYear()+"-"+(x.getMonth()+1)+"-"+x.getDate()}
+function rank(){return [...thresholds].reverse().find(x=>data.total>=x[1])}
+function render(){
+ let r=rank(),level=Math.floor(data.total/500)+1,within=data.total%500;
+ document.getElementById("rank").textContent=r[0];document.getElementById("level").textContent=String(level).padStart(2,"0");
+ document.getElementById("totalxp").textContent=data.total.toLocaleString();
+ document.getElementById("levelbar").style.width=(within/500*100)+"%";
+ document.getElementById("progress").textContent=within+" / 500 XP to next level";
+ let next=thresholds.find(x=>x[1]>data.total);document.getElementById("nextRank").textContent=next?"Next: "+next[0]:"MAX RANK";
+ document.getElementById("stats").innerHTML=Object.entries(data.attrs).map(([k,v])=>`<div class="stat"><b>${v}</b><small>${k}</small></div>`).join("");
+ document.getElementById("date").textContent=new Date().toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+ const claimed=data.claimed[dayKey()]===true;
+ document.getElementById("quests").innerHTML=quests.map((q,i)=>`<div class="quest"><input type="checkbox" id="q${i}" ${claimed?"disabled":""}><label class="qname" for="q${i}">${q[0]}</label><span class="points">+${q[1]} XP</span></div>`).join("");
+ document.querySelectorAll("#quests input").forEach(el=>el.addEventListener("change",updateToday));
+ document.getElementById("claim").disabled=claimed;document.getElementById("claimnote").textContent=claimed?"Today's XP has been claimed. Come back tomorrow.":"Check off completed missions, then claim your XP.";
+ updateToday();
+ const wk=weekKey(),bc=data.bossClaimed[wk]===true;
+ document.getElementById("boss").innerHTML=bossTasks.map((t,i)=>`<div class="bossitem"><label><input type="checkbox" id="b${i}" ${bc?"disabled":""}><span>${t}</span></label></div>`).join("");
+ document.getElementById("bossclaim").disabled=bc;document.getElementById("bossnote").textContent=bc?"This week's boss reward claimed.": "Complete all five to claim the reward.";
+ document.getElementById("ranks").innerHTML=thresholds.map(([n,x])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #252c40"><span>${n}</span><b>${x.toLocaleString()} XP</b></div>`).join("");
+}
+function updateToday(){let xp=0;quests.forEach((q,i)=>{let el=document.getElementById("q"+i);if(el&&el.checked)xp+=q[1]});document.getElementById("todayxp").textContent=xp+" XP"}
+document.getElementById("claim").addEventListener("click",()=>{if(data.claimed[dayKey()])return;let xp=0;quests.forEach((q,i)=>{if(document.getElementById("q"+i)?.checked)xp+=q[1]});if(!xp)return;data.total+=xp;data.claimed[dayKey()]=true;save();render()});
+document.getElementById("bossclaim").addEventListener("click",()=>{if(data.bossClaimed[weekKey()])return;let all=bossTasks.every((_,i)=>document.getElementById("b"+i)?.checked);if(!all){alert("Complete all five boss objectives first.");return}data.total+=300;data.bossClaimed[weekKey()]=true;save();render()});
+render();
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script></body></html>
